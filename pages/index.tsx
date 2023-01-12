@@ -1,8 +1,15 @@
-import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
+import Header from '../components/Header'
+import {sanityClient} from '../sanity';
+import {Post} from '../typings'
+import PostItem from '../components/PostItem'
 
-const Home: NextPage = () => {
+interface Props {
+  posts: [Post];
+}
+
+export default function Home ({posts}: Props){
+  console.log(posts)
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
       <Head>
@@ -10,77 +17,56 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+      <Header />
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
-            pages/index.tsx
-          </code>
-        </p>
 
-        <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and its API.
-            </p>
-          </a>
+      <div className="max-w-screen-xl m-auto  flex justify-between bg-black text-white h-[450px] sm:h-[550px]">
+          <div className='flex flex-col items-start justify-center space-y-8 max-w-3xl font-verdana p-10'>
+              <span className="text-5xl sm:text-6xl sm:font-bold">Get Travel Experiences & Inspirations!</span>
+              <span className='text-xl'>Discover Places, Explore Adventure And Experiences.</span>
+              <span className='text-white text-2xl font-normal border-2 border-[#FF2929] 
+                                px-14 py-[10px] rounded-full'>
+                      Start Exploring 
+               </span>
+          </div>
 
-          <a
-            href="https://nextjs.org/learn"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
+          <div className='hidden md:inline-flex mt-0'>
+              <img src="https://images.unsplash.com/photo-1539635278303-d4002c07eae3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"/>
+          </div>
+      </div>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className="flex h-24 w-full items-center justify-center border-t">
-        <a
-          className="flex items-center justify-center gap-2"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-        </a>
-      </footer>
+    {/* Post Items Container */}
+    <PostItem posts={posts}/> 
+      
     </div>
   )
 }
 
-export default Home
+// Changes the home page into server side rendered page
+/* getServerSideProps(): A method that tells the Next component to populate the props and render 
+  into a static HTML page at run time.
+*/
+export const getServerSideProps = async () => {
+  const query = `*[_type == "post"] {
+    _id,
+    title,
+    description,
+    author -> {
+      name,
+      image
+    },
+    description,
+    mainImage,
+    slug,
+    publishedAt,
+  }`;
+
+  const posts = await sanityClient.fetch(query);
+
+  return {
+    props:{ 
+      posts,
+    }
+  }
+};
+
