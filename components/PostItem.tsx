@@ -1,8 +1,13 @@
 import React from 'react'
 import Link from 'next/link';
 import {urlFor} from '../sanity';
+import {Post} from '../typings'
 
-const PostItem = ({posts}) => {
+interface Props {
+  posts: [Post];
+}
+
+const PostItem = ({posts}:Props) => {
   return (
     <div className="max-w-screen-xl m-auto mt-12 sm:mt-24 flex flex-col items-center">
     
